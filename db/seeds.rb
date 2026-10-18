@@ -1,21 +1,22 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
 
-676.times do
+require "csv"
+
+# Import products and categories from the CSV file.
+Product.destroy_all
+Category.destroy_all
+
+CSV.foreach(Rails.root.join("db", "products.csv"), headers: true) do |row|
+  category_name = row["category"]
+
+  category = Category.find_or_create_by!(name: category_name)
+
   Product.create!(
-    title: Faker::Commerce.product_name,
-    description: Faker::Lorem.paragraph,
-    price: Faker::Commerce.price(range: 1.0..1000.0),
-    stock_quantity: Faker::Number.between(from: 0, to: 100)
+    title: row["name"],
+    description: row["description"],
+    price: row["price"],
+    stock_quantity: row["stock quantity"],
+    category: category
   )
 end
 
-puts "Created 676 products!"
-
+puts "Products and categories imported successfully!"
